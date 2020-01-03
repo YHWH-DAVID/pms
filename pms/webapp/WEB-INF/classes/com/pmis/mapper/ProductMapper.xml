@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pmis.mapper.ProductMapper">
+	<insert id="save">
+		INSERT INTO product
+		(productName,dir_id,salePrice,supplier,brand,cutoff,costPrice)VALUES(#{productName},#{dirId},#{salePrice},#{supplier},#{brand},#{cutoff},#{costPrice})
+	</insert>
+	<delete id="delete">
+		DELETE FROM product WHERE id=#{id}
+	</delete>
+	<update id="update">
+		UPDATE product SET
+		productName=#{productName},dir_id=#{dirId},salePrice=#{salePrice},supplier=#{supplier},brand=#{brand},cutoff=#{cutoff},costPrice=#{costPrice}
+		WHERE id=#{id}
+	</update>
+	<resultMap type="product" id="base">
+		<id column="id" property="id"/>
+		<result column="productName" property="productName"/>
+		<result column="dir_id" property="dirId"/>
+		<result column="salePrice" property="salePrice"/>
+		<result column="supplier" property="supplier"/>
+		<result column="brand" property="brand"/>
+		<result column="cutoff" property="cutoff"/>
+		<result column="costPrice" property="costPrice"/>
+	</resultMap>
+	<select id="get" resultMap="base">
+		SELECT *FROM product WHERE id=#{id}
+	</select>
+	<sql id="querySql">
+		<where>
+			<if test="keyWord!=null and keyWord!=''">
+		AND productName LIKE concat('%',#{keyWord},'%')			
+			</if>
+			<if test="keyWord!=null and keyWord!=''">
+		OR supplier LIKE concat('%',#{keyWord},'%')			
+			</if>
+			<if test="keyWord!=null and keyWord!=''">
+		OR brand LIKE concat('%',#{keyWord},'%')			
+			</if>
+			<if test="minSalePrice!=null">
+			AND salePrice &gt;=#{minSalePrice}
+			</if>
+			<if test="maxSalePrice!=null">
+			AND salePrice &lt;=#{maxSalePrice}
+			</if>
+		</where>
+	</sql>
+	<select id="queryForList" resultMap="base">
+		SELECT *FROM product
+		<include refid="querySql"/> 
+		LIMIT #{start},#{pageSize}
+	</select>
+	<select id="queryForCount" resultType="int">
+	SELECT COUNT(*) FROM product
+	 <include refid="querySql"/> 
+	</select>
+	
+</mapper>
